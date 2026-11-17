@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
+const fs = require("fs/promises");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -257,6 +258,68 @@ app.get("/api/games/:id", async (req, res) => {
         res.status(502).json({
             error: "Could not retrieve game details."
         });
+    }
+});
+
+// ==========================================
+// PERSISTENT PERSONAL DATABASE
+// ==========================================
+
+const DATA_DIR = path.join(__dirname, "data");
+const DATABASE_FILE = path.join(DATA_DIR, "noboxd.json");
+let databaseWriteQueue = Promise.resolve();
+
+async function readDatabase() {
+    try {
+        const raw = await fs.readFile(DATABASE_FILE, "utf8");
+        const parsed = JSON.parse(raw);
+        return {
+            exists: true,
+            database: {
+                games: Array.isArray(parsed.games) ? parsed.games : [],
+                diary: Array.isArray(parsed.diary) ? parsed.diary : []
+            }
+        };
+    } catch (error) {
+        if (error.code === "ENOENT") {
+            return { exists: false, database: { games: [], diary: [] } };
+        }
+        throw error;
+    }
+}
+
+app.get("/api/database", async (req, res) => {
+    try {
+        res.set("Cache-Control", "no-store");
+        res.json(await readDatabase());
+    } catch (error) {
+        console.error("Database read error:", error);
+        res.status(500).json({ error: "Could not read the NOBoxd database." });
+    }
+});
+
+app.put("/api/database", async (req, res) => {
+    const games = req.body?.games;
+    const diary = req.body?.diary;
+
+    if (!Array.isArray(games) || !Array.isArray(diary)) {
+        return res.status(400).json({ error: "Database must contain games and diary arrays." });
+    }
+
+    const payload = JSON.stringify({ games, diary }, null, 2);
+    databaseWriteQueue = databaseWriteQueue.then(async () => {
+        await fs.mkdir(DATA_DIR, { recursive: true });
+        const tempFile = DATABASE_FILE + ".tmp";
+        await fs.writeFile(tempFile, payload, "utf8");
+        await fs.rename(tempFile, DATABASE_FILE);
+    });
+
+    try {
+        await databaseWriteQueue;
+        res.json({ success: true, games: games.length, diary: diary.length });
+    } catch (error) {
+        console.error("Database write error:", error);
+        res.status(500).json({ error: "Could not save the NOBoxd database." });
     }
 });
 
