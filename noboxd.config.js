@@ -1,3 +1,2 @@
-// Leave empty for local development, where the frontend and API share one origin.
-// For GitHub Pages, set this to the public URL of the separately deployed Node API.
-window.NOBOXD_API_URL = "";
+// Public URL for the free Render API. No private credentials belong in this file.
+window.NOBOXD_API_URL = "https://noboxd-api.onrender.com";
