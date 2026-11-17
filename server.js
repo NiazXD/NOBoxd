@@ -265,7 +265,7 @@ app.get("/api/games/:id", async (req, res) => {
 // PERSISTENT PERSONAL DATABASE
 // ==========================================
 
-const DATA_DIR = path.join(__dirname, "data");
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const DATABASE_FILE = path.join(DATA_DIR, "noboxd.json");
 let databaseWriteQueue = Promise.resolve();
 
