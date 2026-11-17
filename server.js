@@ -109,7 +109,6 @@ async function getAccessToken() {
 
 async function igdbRequest(endpoint, query) {
     const token = await getAccessToken();
-
     const response = await fetch(`${IGDB_URL}/${endpoint}`, {
         method: "POST",
         headers: {
@@ -120,18 +119,62 @@ async function igdbRequest(endpoint, query) {
         body: query,
         signal: AbortSignal.timeout(20000)
     });
-
     if (response.status === 401) {
         accessToken = null;
         tokenExpiresAt = 0;
     }
-
     if (!response.ok) {
         const error = await response.text();
         throw new Error(`IGDB error (${response.status}): ${error}`);
     }
-
     return response.json();
+}
+
+// No-account fallback: Steam's public store search and app-details endpoints.
+async function steamSearch(search, limit = 20) {
+    const url = new URL("https://store.steampowered.com/api/storesearch/");
+    url.search = new URLSearchParams({ term: search, l: "english", cc: "us" });
+    const response = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!response.ok) throw new Error(`Steam search failed (${response.status})`);
+    const payload = await response.json();
+    return (payload.items || []).slice(0, limit).map(item => ({
+        id: `steam_${item.id}`,
+        name: item.name,
+        coverUrl: item.tiny_image || null,
+        first_release_date: null,
+        genres: [],
+        platforms: [{ name: "PC (Steam)" }],
+        summary: "",
+        source: "Steam"
+    }));
+}
+
+async function steamDetails(appId) {
+    const url = new URL("https://store.steampowered.com/api/appdetails");
+    url.search = new URLSearchParams({ appids: String(appId), l: "english", cc: "us" });
+    const response = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!response.ok) throw new Error(`Steam details failed (${response.status})`);
+    const payload = await response.json();
+    const result = payload[String(appId)];
+    if (!result?.success || !result.data) return null;
+    const game = result.data;
+    const release = game.release_date?.date || "";
+    const parsedDate = Date.parse(release);
+    return {
+        id: `steam_${appId}`,
+        name: game.name || "Unknown game",
+        cover: { url: game.header_image || game.capsule_image || "" },
+        coverUrl: game.header_image || game.capsule_image || "",
+        first_release_date: Number.isFinite(parsedDate) ? Math.floor(parsedDate / 1000) : null,
+        genres: (game.genres || []).map(item => ({ name: item.description })),
+        platforms: Object.entries(game.platforms || {})
+            .filter(([, supported]) => supported)
+            .map(([name]) => ({ name: name === "windows" ? "Windows" : name === "mac" ? "macOS" : "Linux" })),
+        involved_companies: (game.developers || []).map(name => ({ company: { name }, developer: true })),
+        summary: game.short_description || "",
+        storyline: "",
+        source: "Steam"
+    };
 }
 
 // ==========================================
@@ -211,8 +254,11 @@ app.get("/api/games", async (req, res) => {
             offset ${offset};
         `;
 
-        const games = await igdbRequest("games", query);
+        if (!process.env.TWITCH_CLIENT_ID || !process.env.TWITCH_CLIENT_SECRET) {
+            return res.json(await steamSearch(search, limit));
+        }
 
+        const games = await igdbRequest("games", query);
         res.json(games.map(formatGame));
 
     } catch (error) {
@@ -231,7 +277,18 @@ app.get("/api/games", async (req, res) => {
 
 app.get("/api/games/:id", async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const requestedId = String(req.params.id);
+        if (requestedId.startsWith("steam_")) {
+            const steamId = requestedId.slice(6);
+            if (!/^\\d+$/.test(steamId)) {
+                return res.status(400).json({ error: "Invalid Steam app ID." });
+            }
+            const steamGame = await steamDetails(steamId);
+            if (!steamGame) return res.status(404).json({ error: "Game not found." });
+            return res.json(steamGame);
+        }
+
+        const id = Number(requestedId);
 
         if (!Number.isSafeInteger(id) || id <= 0) {
             return res.status(400).json({
