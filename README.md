@@ -38,3 +38,7 @@ of that API (without a trailing slash) and publish the change. The API allows
 only the configured origins; use a comma-separated `CORS_ORIGIN` value to allow
 additional development origins.
 
+Until that value is configured, the GitHub Pages site stays in local-only mode:
+it will not send requests to a non-existent Pages API, and its manual library
+and diary entries are saved in the current browser.
+

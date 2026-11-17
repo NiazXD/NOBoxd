@@ -1005,6 +1005,8 @@ document.getElementById("searchBtn").onclick = () => navigate("discover");
 const API_BASE_URL = String(window.NOBOXD_API_URL || "")
     .trim()
     .replace(/\/+$/, "");
+const IS_GITHUB_PAGES = window.location.hostname.endsWith(".github.io");
+const API_AVAILABLE = Boolean(API_BASE_URL) || !IS_GITHUB_PAGES;
 
 function apiURL(url) {
     return API_BASE_URL && url.startsWith("/")
@@ -1013,6 +1015,10 @@ function apiURL(url) {
 }
 
 async function apiRequest(url, options = {}) {
+    if (!API_AVAILABLE) {
+        throw new Error("The NOBoxd API is not configured for this GitHub Pages site.");
+    }
+
     const response = await fetch(apiURL(url), {
         ...options,
         headers: { "Accept": "application/json", ...(options.headers || {}) },
@@ -1052,6 +1058,18 @@ async function searchGames(query) {
 
     document.getElementById("searchHeading").textContent =
         `Results for "${query}"`;
+
+    if (!API_AVAILABLE) {
+        document.getElementById("searchCount").textContent = "API setup needed";
+        grid.innerHTML = `
+            <div class="empty">
+                <h3>Game search needs the NOBoxd API</h3>
+                Configure a remote API in <code>noboxd.config.js</code> to search IGDB.
+                You can still add games manually and keep a local collection here.
+            </div>
+        `;
+        return;
+    }
 
     document.getElementById("searchCount").textContent = "Searching...";
 
@@ -1804,6 +1822,14 @@ document.getElementById("importFile").onchange = e => {
 // ==========================================
 
 async function initializeNOBoxd() {
+    if (!API_AVAILABLE) {
+        database = loadDatabase();
+        databaseReady = false;
+        renderAll();
+        navigate("home");
+        return;
+    }
+
     try {
         const remote = await apiRequest("/api/database");
         const remoteDB = remote.database || { games: [], diary: [] };
