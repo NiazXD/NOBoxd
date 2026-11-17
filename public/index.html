@@ -1,0 +1,1783 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOBoxd — Your Gaming Journal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #10110f;
+    --panel: #191b18;
+    --panel2: #20221f;
+    --border: #30332e;
+    --lime: #c5f36b;
+    --text: #f0f0e9;
+    --muted: #92968b;
+    --red: #f07878;
+    --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 245px;
+    flex-shrink: 0;
+    background: #151714;
+    border-right: 1px solid var(--border);
+    padding: 28px 18px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.logo {
+    font: 800 27px 'Space Grotesk', sans-serif;
+    letter-spacing: -1.5px;
+    margin: 0 0 5px 10px;
+}
+
+.logo span { color: var(--lime); }
+
+.tagline {
+    color: var(--muted);
+    font-size: 11px;
+    margin-left: 11px;
+    margin-bottom: 42px;
+}
+
+.nav-label {
+    font-size: 10px;
+    color: #777c70;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin: 25px 10px 10px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    text-align: left;
+    margin: 3px 0;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background: #292d23;
+    color: var(--lime);
+}
+
+.nav-icon { width: 20px; text-align: center; }
+
+.main {
+    margin-left: 245px;
+    width: calc(100% - 245px);
+    padding: 35px 48px 70px;
+    max-width: 1700px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.page-title {
+    font: 700 29px 'Space Grotesk', sans-serif;
+    margin: 0;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: var(--panel2);
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn:hover { border-color: var(--lime); }
+
+.btn-primary {
+    background: var(--lime);
+    color: #151811;
+    border-color: var(--lime);
+}
+
+.btn-primary:hover {
+    background: #d6ff85;
+}
+
+.btn-danger {
+    color: var(--red);
+}
+
+.hero {
+    background: linear-gradient(115deg, #262d1e, #1c2019 60%, #191b18);
+    border: 1px solid #363e2b;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero:after {
+    content: 'N';
+    position: absolute;
+    right: 50px;
+    top: -65px;
+    font: 800 250px 'Space Grotesk';
+    color: rgba(197,243,107,.055);
+    pointer-events: none;
+}
+
+.hero h2 {
+    font: 700 25px 'Space Grotesk';
+    margin: 0 0 10px;
+}
+
+.hero p {
+    color: #b6bbaa;
+    font-size: 13px;
+    max-width: 470px;
+    line-height: 1.7;
+}
+
+.search-wrap {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin-top: 22px;
+}
+
+.search-wrap input { flex: 1; }
+
+input, textarea, select {
+    background: #11130f;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 12px 13px;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--lime);
+}
+
+input::placeholder, textarea::placeholder {
+    color: #666b61;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 32px 0 18px;
+    gap: 15px;
+}
+
+.section-head h2 {
+    font: 600 18px 'Space Grotesk';
+    margin: 0;
+}
+
+.muted { color: var(--muted); font-size: 12px; }
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 25px 0 35px;
+}
+
+.stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 19px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 12px;
+}
+
+.stat-value {
+    font: 700 27px 'Space Grotesk';
+}
+
+.stat-value small {
+    font-size: 12px;
+    color: var(--lime);
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 22px 16px;
+}
+
+.game-card {
+    cursor: pointer;
+    min-width: 0;
+    position: relative;
+}
+
+.poster {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+    background: #262922;
+    border-radius: 9px;
+    border: 1px solid #30342c;
+    transition: .25s;
+}
+
+.game-card:hover .poster {
+    transform: translateY(-5px);
+    border-color: var(--lime);
+}
+
+.poster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font: 700 25px 'Space Grotesk';
+}
+
+.game-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.game-meta {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.game-rating {
+    color: var(--lime);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 7px;
+    border-radius: 4px;
+    font-size: 9px;
+    background: #2b3024;
+    color: var(--lime);
+    margin-top: 6px;
+}
+
+.filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.filter.active {
+    background: var(--lime);
+    color: #171b11;
+    border-color: var(--lime);
+}
+
+.empty {
+    text-align: center;
+    padding: 70px 20px;
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+    grid-column: 1/-1;
+}
+
+.empty-icon {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.empty h3 {
+    color: var(--text);
+    margin: 0 0 8px;
+}
+
+.results {
+    margin-top: 25px;
+}
+
+.hidden { display: none !important; }
+
+/* MODALS */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.82);
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modal {
+    background: #1b1e19;
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #30342d;
+    color: white;
+    border: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.detail-header {
+    display: flex;
+    gap: 22px;
+    margin-bottom: 25px;
+    padding-right: 20px;
+}
+
+.detail-cover {
+    width: 150px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #292d25;
+    flex-shrink: 0;
+}
+
+.detail-info h2 {
+    font: 700 23px 'Space Grotesk';
+    margin: 5px 0 10px;
+}
+
+.detail-info p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.detail-section {
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    margin-top: 18px;
+}
+
+.detail-section h3 {
+    font: 600 14px 'Space Grotesk';
+    margin: 0 0 14px;
+}
+
+.field {
+    margin-bottom: 15px;
+}
+
+.field label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 7px;
+}
+
+.field textarea { min-height: 90px; resize: vertical; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: var(--lime);
+    color: #171b11;
+    padding: 13px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 100;
+    animation: fadein .2s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.diary-entry {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.diary-entry h3 {
+    font-size: 14px;
+    margin: 0 0 7px;
+}
+
+.diary-entry p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.diary-entry small { color: var(--lime); }
+
+.mobile-menu { display: none; }
+
+@media(max-width: 900px) {
+    .sidebar { width: 200px; }
+    .main {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+        padding: 28px 24px;
+    }
+    .stats { grid-template-columns: repeat(2,1fr); }
+}
+
+@media(max-width: 650px) {
+    .sidebar {
+        display: none;
+        z-index: 20;
+        width: 245px;
+    }
+
+    .sidebar.open { display: block; }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px 15px 50px;
+    }
+
+    .mobile-menu { display: inline-block; }
+
+    .topbar { align-items: flex-start; }
+    .page-title { font-size: 23px; }
+    .top-actions { flex-wrap: wrap; }
+    .hero { padding: 23px; }
+    .hero h2 { font-size: 21px; }
+    .stats { gap: 9px; }
+    .stat { padding: 14px; }
+    .game-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 17px 10px;
+    }
+    .detail-header { gap: 12px; }
+    .detail-cover { width: 110px; height: 150px; }
+    .detail-info h2 { font-size: 18px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+    <div class="logo">NO<span>Boxd</span></div>
+    <div class="tagline">YOUR PERSONAL GAMING JOURNAL</div>
+
+    <div class="nav-label">LIBRARY</div>
+
+    <button class="nav-item active" data-page="home">
+        <span class="nav-icon">⌂</span> Overview
+    </button>
+
+    <button class="nav-item" data-page="library">
+        <span class="nav-icon">▦</span> My Library
+    </button>
+
+    <button class="nav-item" data-page="playing">
+        <span class="nav-icon">▶</span> Currently Playing
+    </button>
+
+    <button class="nav-item" data-page="completed">
+        <span class="nav-icon">✓</span> Completed
+    </button>
+
+    <button class="nav-item" data-page="backlog">
+        <span class="nav-icon">◷</span> Backlog
+    </button>
+
+    <button class="nav-item" data-page="dropped">
+        <span class="nav-icon">×</span> Dropped
+    </button>
+
+    <div class="nav-label">PERSONAL</div>
+
+    <button class="nav-item" data-page="diary">
+        <span class="nav-icon">▤</span> Gaming Diary
+    </button>
+
+    <button class="nav-item" data-page="stats">
+        <span class="nav-icon">▥</span> Statistics
+    </button>
+
+    <div class="nav-label">DISCOVER</div>
+
+    <button class="nav-item" data-page="discover">
+        <span class="nav-icon">⌕</span> Find Games
+    </button>
+
+    <div class="nav-label">DATA</div>
+
+    <button class="nav-item" id="exportBtn">
+        <span class="nav-icon">↓</span> Export Backup
+    </button>
+
+    <button class="nav-item" id="importBtn">
+        <span class="nav-icon">↑</span> Import Backup
+    </button>
+
+    <input type="file" id="importFile" accept=".json" hidden>
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main">
+
+    <div class="topbar">
+        <div>
+            <button class="btn mobile-menu" id="mobileMenu">☰</button>
+            <h1 class="page-title" id="pageTitle">Your Gaming Space</h1>
+            <div class="page-subtitle" id="pageSubtitle">
+                Every game has a story. Keep yours here.
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button class="btn" id="manualBtn">+ Manual Entry</button>
+            <button class="btn btn-primary" id="searchBtn">⌕ Discover Games</button>
+        </div>
+    </div>
+
+
+    <!-- HOME -->
+
+    <section id="homePage">
+
+        <div class="hero">
+            <h2>Your games. Your stories.</h2>
+            <p>
+                A personal space to track the games you play,
+                remember your experiences, and keep your gaming
+                history alive.
+            </p>
+
+            <div class="search-wrap">
+                <input id="heroSearch" placeholder="Search for a game...">
+                <button class="btn btn-primary" id="heroSearchBtn">Search</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">TOTAL GAMES</div>
+                <div class="stat-value" id="totalStat">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">COMPLETED</div>
+                <div class="stat-value" id="completedStat">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">PLAYING</div>
+                <div class="stat-value" id="playingStat">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">AVERAGE RATING</div>
+                <div class="stat-value" id="ratingStat">—</div>
+            </div>
+        </div>
+
+        <div class="section-head">
+            <h2>Recently Added</h2>
+            <button class="btn" onclick="navigate('library')">View Library →</button>
+        </div>
+
+        <div class="game-grid" id="recentGrid"></div>
+
+        <div class="section-head">
+            <h2>Currently Playing</h2>
+        </div>
+
+        <div class="game-grid" id="playingGrid"></div>
+
+    </section>
+
+
+    <!-- LIBRARY -->
+
+    <section id="libraryPage" class="hidden">
+        <div class="section-head">
+            <h2>Your Collection</h2>
+            <span class="muted" id="libraryCount">0 games</span>
+        </div>
+
+        <div class="filters" id="libraryFilters">
+            <button class="filter active" data-filter="All">All</button>
+            <button class="filter" data-filter="Playing">Playing</button>
+            <button class="filter" data-filter="Completed">Completed</button>
+            <button class="filter" data-filter="Backlog">Backlog</button>
+            <button class="filter" data-filter="Dropped">Dropped</button>
+        </div>
+
+        <div class="game-grid results" id="libraryGrid"></div>
+    </section>
+
+
+    <!-- STATUS PAGES -->
+
+    <section id="statusPage" class="hidden">
+        <div class="section-head">
+            <h2 id="statusHeading">Games</h2>
+        </div>
+        <div class="game-grid" id="statusGrid"></div>
+    </section>
+
+
+    <!-- DISCOVER -->
+
+    <section id="discoverPage" class="hidden">
+        <div class="hero">
+            <h2>Find your next adventure.</h2>
+            <p>Search millions of games using the IGDB database.</p>
+
+            <div class="search-wrap">
+                <input id="discoverSearch" placeholder="Elden Ring, Cyberpunk 2077, Hollow Knight...">
+                <button class="btn btn-primary" id="discoverSearchBtn">Search</button>
+            </div>
+        </div>
+
+        <div class="section-head">
+            <h2 id="searchHeading">Search Results</h2>
+            <span class="muted" id="searchCount"></span>
+        </div>
+
+        <div class="game-grid" id="searchGrid">
+            <div class="empty">
+                <div class="empty-icon">⌕</div>
+                <h3>Find something to play</h3>
+                Search for any game above.
+            </div>
+        </div>
+    </section>
+
+
+    <!-- DIARY -->
+
+    <section id="diaryPage" class="hidden">
+        <div class="section-head">
+            <h2>Your Gaming Memories</h2>
+            <button class="btn btn-primary" id="addDiaryBtn">+ New Entry</button>
+        </div>
+
+        <div id="diaryList"></div>
+    </section>
+
+
+    <!-- STATISTICS -->
+
+    <section id="statsPage" class="hidden">
+        <div class="section-head">
+            <h2>Your Gaming Statistics</h2>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">TOTAL COLLECTION</div>
+                <div class="stat-value" id="sTotal">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">COMPLETED GAMES</div>
+                <div class="stat-value" id="sCompleted">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">REVIEWED GAMES</div>
+                <div class="stat-value" id="sReviewed">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">DIARY ENTRIES</div>
+                <div class="stat-value" id="sDiary">0</div>
+            </div>
+        </div>
+
+        <div class="section-head"><h2>Collection Breakdown</h2></div>
+        <div id="breakdown"></div>
+
+        <div class="section-head"><h2>Highest Rated Games</h2></div>
+        <div class="game-grid" id="topRatedGrid"></div>
+    </section>
+
+</main>
+</div>
+
+
+<!-- MODAL -->
+
+<div class="overlay hidden" id="overlay">
+    <div class="modal" id="modal">
+        <button class="modal-close" id="closeModal">✕</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<div id="toast" class="hidden toast"></div>
+
+
+<script>
+/* NOBoxd must use the same origin as its backend and saved collection. */
+if (window.location.protocol === "file:") {
+    window.location.replace("http://localhost:3000/");
+}
+</script>
+
+<script>
+
+// ==========================================
+// DATA
+// ==========================================
+
+const STORAGE_KEY = "noboxd_database_v1";
+
+let database = loadDatabase();
+let currentPage = "home";
+let libraryFilter = "All";
+let searchTimer = null;
+let activeGame = null;
+
+function loadDatabase() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        return {
+            games: Array.isArray(saved?.games) ? saved.games : [],
+            diary: Array.isArray(saved?.diary) ? saved.diary : []
+        };
+    } catch {
+        return { games: [], diary: [] };
+    }
+}
+
+function saveDatabase() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
+    renderAll();
+}
+
+function toast(message) {
+    const el = document.getElementById("toast");
+    el.textContent = message;
+    el.classList.remove("hidden");
+
+    clearTimeout(toast.timer);
+
+    toast.timer = setTimeout(() => {
+        el.classList.add("hidden");
+    }, 2500);
+}
+
+function getGame(id) {
+    return database.games.find(g => String(g.id) === String(id));
+}
+
+function gameExists(id) {
+    return !!getGame(id);
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function coverURL(game) {
+    const url = game?.cover?.url || game?.coverUrl || "";
+    if (!url) return "";
+
+    return url
+        .replace("t_thumb", "t_cover_big")
+        .replace("t_micro", "t_cover_big");
+}
+
+function releaseYear(game) {
+    if (!game.first_release_date) return "Unknown year";
+
+    return new Date(game.first_release_date * 1000)
+        .getFullYear();
+}
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+
+const pageInfo = {
+    home: ["Your Gaming Space", "Every game has a story. Keep yours here."],
+    library: ["My Library", "Your personal collection."],
+    playing: ["Currently Playing", "Your active adventures."],
+    completed: ["Completed Games", "Every finished journey."],
+    backlog: ["Your Backlog", "Games waiting for their moment."],
+    dropped: ["Dropped Games", "Games you decided to leave behind."],
+    discover: ["Discover Games", "Find your next adventure."],
+    diary: ["Gaming Diary", "Your gaming memories."],
+    stats: ["Statistics", "A look at your gaming history."]
+};
+
+function navigate(page) {
+    currentPage = page;
+
+    document.querySelectorAll(".nav-item[data-page]")
+        .forEach(btn => {
+            btn.classList.toggle(
+                "active",
+                btn.dataset.page === page
+            );
+        });
+
+    document.querySelectorAll("main section")
+        .forEach(section => section.classList.add("hidden"));
+
+    // Playing, Completed, Backlog and Dropped share one status section.
+    const statusPages = ["playing", "completed", "backlog", "dropped"];
+    const targetId = statusPages.includes(page)
+        ? "statusPage"
+        : `${page}Page`;
+
+    const target = document.getElementById(targetId);
+    if (target) target.classList.remove("hidden");
+
+    document.getElementById("pageTitle").textContent =
+        pageInfo[page]?.[0] || "NOBoxd";
+
+    document.getElementById("pageSubtitle").textContent =
+        pageInfo[page]?.[1] || "";
+
+    document.getElementById("sidebar").classList.remove("open");
+
+    renderPage(page);
+}
+
+document.querySelectorAll(".nav-item[data-page]")
+    .forEach(btn => {
+        btn.addEventListener("click", () => {
+            navigate(btn.dataset.page);
+        });
+    });
+
+document.getElementById("mobileMenu").onclick = () => {
+    document.getElementById("sidebar").classList.toggle("open");
+};
+
+document.getElementById("searchBtn").onclick = () => navigate("discover");
+
+
+// ==========================================
+// IGDB API
+// ==========================================
+
+async function apiRequest(url) {
+    // Use the same origin as the page. A file:// page is redirected above.
+    const response = await fetch(url, {
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+    let data;
+
+    if (contentType.includes("application/json")) {
+        data = await response.json();
+    } else {
+        const body = await response.text();
+        throw new Error(
+            `The NOBoxd API returned a non-JSON response (HTTP ${response.status}). ` +
+            `Check that the Node server is running at http://localhost:3000. ` +
+            (body ? body.slice(0, 160) : "")
+        );
+    }
+
+    if (!response.ok) {
+        throw new Error(data?.error || `API request failed (HTTP ${response.status})`);
+    }
+
+    return data;
+}
+
+async function searchGames(query) {
+    query = String(query || "").trim();
+    if (!query) {
+        document.getElementById("searchCount").textContent = "Enter a game name to search";
+        document.getElementById("searchGrid").innerHTML = "";
+        return;
+    }
+
+    const grid = document.getElementById("searchGrid");
+
+    document.getElementById("searchHeading").textContent =
+        `Results for "${query}"`;
+
+    document.getElementById("searchCount").textContent = "Searching...";
+
+    grid.innerHTML = `
+        <div class="empty">
+            <div class="empty-icon">◌</div>
+            Searching IGDB...
+        </div>
+    `;
+
+    try {
+        const games = await apiRequest(
+            `/api/games?search=${encodeURIComponent(query)}&limit=30`
+        );
+
+        document.getElementById("searchCount").textContent =
+            `${games.length} results`;
+
+        if (!games.length) {
+            grid.innerHTML = `
+                <div class="empty">
+                    <h3>No games found</h3>
+                    Try another search.
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = games.map(gameCard).join("");
+
+    } catch (error) {
+        grid.innerHTML = `
+            <div class="empty">
+                <h3>Couldn't connect to IGDB</h3>
+                ${escapeHTML(error.message)}
+                <p>Make sure your NOBoxd server is running.</p>
+            </div>
+        `;
+
+        document.getElementById("searchCount").textContent = "Error";
+    }
+}
+
+document.getElementById("discoverSearchBtn").onclick = () => {
+    searchGames(document.getElementById("discoverSearch").value);
+};
+
+document.getElementById("discoverSearch").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        searchGames(e.target.value);
+    }
+});
+
+document.getElementById("heroSearchBtn").onclick = () => {
+    const query = document.getElementById("heroSearch").value;
+    navigate("discover");
+    document.getElementById("discoverSearch").value = query;
+    searchGames(query);
+};
+
+document.getElementById("heroSearch").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        document.getElementById("heroSearchBtn").click();
+    }
+});
+
+
+// ==========================================
+// GAME CARDS
+// ==========================================
+
+function gameCard(game) {
+    const saved = getGame(game.id);
+    const cover = coverURL(game);
+
+    const image = cover
+        ? `<img class="poster" src="${escapeHTML(cover)}"
+             alt="${escapeHTML(game.name)}"
+             loading="lazy"
+             onerror="this.style.display='none'">`
+        : `<div class="poster poster-placeholder">N</div>`;
+
+    return `
+        <div class="game-card" data-id="${escapeHTML(game.id)}"
+             onclick="openGame('${escapeHTML(game.id)}')">
+
+            ${image}
+
+            <div class="game-title">
+                ${escapeHTML(game.name)}
+            </div>
+
+            <div class="game-meta">
+                ${releaseYear(game)}
+            </div>
+
+            ${saved ? `
+                <div class="status-pill">${escapeHTML(saved.status)}</div>
+            ` : ""}
+
+            ${saved?.rating ? `
+                <div class="game-rating">★ ${saved.rating}/10</div>
+            ` : ""}
+        </div>
+    `;
+}
+
+function renderGrid(element, games, emptyTitle = "Nothing here yet") {
+    const el = document.getElementById(element);
+
+    if (!games.length) {
+        el.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">▦</div>
+                <h3>${escapeHTML(emptyTitle)}</h3>
+                Your collection will appear here.
+            </div>
+        `;
+        return;
+    }
+
+    el.innerHTML = games.map(gameCard).join("");
+}
+
+
+// ==========================================
+// GAME DETAILS
+// ==========================================
+
+async function openGame(id) {
+    let game = getGame(id);
+
+    if (!game) {
+        try {
+            game = await apiRequest(`/api/games/${encodeURIComponent(id)}`);
+        } catch {
+            toast("Couldn't retrieve game details.");
+            return;
+        }
+    }
+
+    activeGame = game;
+    showGameModal(game);
+}
+
+function showGameModal(game) {
+    const saved = getGame(game.id);
+    const cover = coverURL(game);
+
+    const genres = (game.genres || [])
+        .map(g => typeof g === "string" ? g : g.name)
+        .filter(Boolean)
+        .join(", ");
+
+    const platforms = (game.platforms || [])
+        .map(p => typeof p === "string" ? p : p.name)
+        .filter(Boolean)
+        .join(", ");
+
+    document.getElementById("modalContent").innerHTML = `
+        <div class="detail-header">
+
+            <img class="detail-cover"
+                src="${escapeHTML(cover)}"
+                onerror="this.style.opacity='.2'"
+                alt="">
+
+            <div class="detail-info">
+                <h2>${escapeHTML(game.name)}</h2>
+
+                <p>${releaseYear(game)}</p>
+
+                <p>${escapeHTML(genres || "Genre unknown")}</p>
+
+                <p>${escapeHTML(platforms || "Platforms unknown")}</p>
+
+                ${game.total_rating
+                    ? `<p>IGDB Rating: ${Math.round(game.total_rating)}/100</p>`
+                    : ""}
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h3>About this game</h3>
+            <p class="muted">
+                ${escapeHTML(game.summary || "No description available.")}
+            </p>
+        </div>
+
+        <div class="detail-section">
+            <h3>${saved ? "Your Journal" : "Add to Your Library"}</h3>
+
+            <div class="field">
+                <label>Library Status</label>
+                <select id="gameStatus">
+                    ${["Backlog","Playing","Completed","Dropped"].map(s => `
+                        <option value="${s}" ${saved?.status === s ? "selected" : ""}>
+                            ${s}
+                        </option>
+                    `).join("")}
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Your Rating (1-10)</label>
+                <input id="gameRating" type="number"
+                    min="1" max="10" step="0.5"
+                    placeholder="Rate this game..."
+                    value="${saved?.rating ?? ""}">
+            </div>
+
+            <div class="field">
+                <label>Your Review</label>
+                <textarea id="gameReview"
+                    placeholder="What did you think about this game?">${escapeHTML(saved?.review || "")}</textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="saveGame()">
+                    ${saved ? "Save Changes" : "Add to Library"}
+                </button>
+
+                ${saved ? `
+                    <button class="btn btn-danger" onclick="removeGame('${escapeHTML(game.id)}')">
+                        Remove from Library
+                    </button>
+                ` : ""}
+            </div>
+        </div>
+    `;
+
+    document.getElementById("overlay").classList.remove("hidden");
+}
+
+function saveGame() {
+    if (!activeGame) return;
+
+    const ratingValue = document.getElementById("gameRating").value;
+    const rating = ratingValue === "" ? null : Number(ratingValue);
+
+    if (rating !== null && (!Number.isFinite(rating) || rating < 1 || rating > 10)) {
+        toast("Rating must be between 1 and 10.");
+        return;
+    }
+
+    const game = {
+        ...activeGame,
+        status: document.getElementById("gameStatus").value,
+        rating,
+        review: document.getElementById("gameReview").value,
+        dateAdded: getGame(activeGame.id)?.dateAdded || new Date().toISOString(),
+        dateUpdated: new Date().toISOString()
+    };
+
+    const index = database.games.findIndex(g =>
+        String(g.id) === String(game.id)
+    );
+
+    if (index >= 0) {
+        database.games[index] = game;
+    } else {
+        database.games.unshift(game);
+    }
+
+    saveDatabase();
+    closeModal();
+    toast("Game saved to your library!");
+}
+
+function removeGame(id) {
+    if (!confirm("Remove this game from your library?")) return;
+
+    database.games = database.games.filter(g =>
+        String(g.id) !== String(id)
+    );
+
+    saveDatabase();
+    closeModal();
+    toast("Game removed.");
+}
+
+function closeModal() {
+    document.getElementById("overlay").classList.add("hidden");
+    activeGame = null;
+}
+
+document.getElementById("closeModal").onclick = closeModal;
+
+document.getElementById("overlay").onclick = e => {
+    if (e.target.id === "overlay") closeModal();
+};
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+});
+
+
+// ==========================================
+// MANUAL GAME ENTRY
+// ==========================================
+
+function manualEntry() {
+    activeGame = null;
+
+    document.getElementById("modalContent").innerHTML = `
+        <h2 style="font-family:'Space Grotesk'">Manual Game Entry</h2>
+
+        <p class="muted">Add a game that isn't in IGDB.</p>
+
+        <div class="field">
+            <label>Game Name</label>
+            <input id="manualName" placeholder="Game title">
+        </div>
+
+        <div class="field">
+            <label>Cover Image URL (optional)</label>
+            <input id="manualCover" placeholder="https://...">
+        </div>
+
+        <div class="field">
+            <label>Release Year</label>
+            <input id="manualYear" type="number" placeholder="2025">
+        </div>
+
+        <div class="field">
+            <label>Genre</label>
+            <input id="manualGenre" placeholder="RPG, Action, Adventure...">
+        </div>
+
+        <div class="field">
+            <label>Status</label>
+            <select id="manualStatus">
+                <option>Backlog</option>
+                <option>Playing</option>
+                <option>Completed</option>
+                <option>Dropped</option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="createManualGame()">
+                Create Game
+            </button>
+        </div>
+    `;
+
+    document.getElementById("overlay").classList.remove("hidden");
+}
+
+function createManualGame() {
+    const name = document.getElementById("manualName").value.trim();
+
+    if (!name) {
+        toast("Enter a game name.");
+        return;
+    }
+
+    const year = Number(document.getElementById("manualYear").value);
+
+    const game = {
+        id: "manual_" + Date.now(),
+        name,
+        coverUrl: document.getElementById("manualCover").value.trim(),
+        first_release_date: year >= 1970 && year <= 2100
+            ? Math.floor(new Date(year, 0, 1).getTime() / 1000)
+            : null,
+        genres: document.getElementById("manualGenre").value
+            .split(",")
+            .map(name => name.trim())
+            .filter(Boolean)
+            .map(name => ({ name })),
+        platforms: [],
+        status: document.getElementById("manualStatus").value,
+        rating: null,
+        review: "",
+        dateAdded: new Date().toISOString()
+    };
+
+    database.games.unshift(game);
+
+    saveDatabase();
+    closeModal();
+    toast("Manual game added!");
+}
+
+document.getElementById("manualBtn").onclick = manualEntry;
+
+
+// ==========================================
+// LIBRARY RENDERING
+// ==========================================
+
+function renderLibrary() {
+    const games = database.games.filter(g =>
+        libraryFilter === "All" || g.status === libraryFilter
+    );
+
+    document.getElementById("libraryCount").textContent =
+        `${games.length} games`;
+
+    renderGrid("libraryGrid", games);
+
+    document.querySelectorAll("#libraryFilters .filter")
+        .forEach(btn => {
+            btn.classList.toggle(
+                "active",
+                btn.dataset.filter === libraryFilter
+            );
+        });
+}
+
+document.getElementById("libraryFilters").onclick = e => {
+    const btn = e.target.closest("[data-filter]");
+    if (!btn) return;
+
+    libraryFilter = btn.dataset.filter;
+    renderLibrary();
+};
+
+
+// ==========================================
+// DIARY
+// ==========================================
+
+function addDiaryEntry() {
+    const gameOptions = database.games.map(g => `
+        <option value="${escapeHTML(g.id)}">${escapeHTML(g.name)}</option>
+    `).join("");
+
+    document.getElementById("modalContent").innerHTML = `
+        <h2 style="font-family:'Space Grotesk'">New Diary Entry</h2>
+
+        <div class="field">
+            <label>Game</label>
+            <select id="diaryGame">
+                <option value="">General gaming entry</option>
+                ${gameOptions}
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="diaryDate"
+                value="${new Date().toISOString().slice(0,10)}">
+        </div>
+
+        <div class="field">
+            <label>Hours Played (optional)</label>
+            <input type="number" id="diaryHours"
+                min="0" step="0.5" placeholder="2.5">
+        </div>
+
+        <div class="field">
+            <label>Your Entry</label>
+            <textarea id="diaryText"
+                placeholder="What happened during your gaming session?"
+                style="min-height:140px"></textarea>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveDiaryEntry()">
+            Save Entry
+        </button>
+    `;
+
+    document.getElementById("overlay").classList.remove("hidden");
+}
+
+function saveDiaryEntry() {
+    const text = document.getElementById("diaryText").value.trim();
+
+    if (!text) {
+        toast("Write something first.");
+        return;
+    }
+
+    const gameId = document.getElementById("diaryGame").value;
+    const game = gameId ? getGame(gameId) : null;
+
+    database.diary.unshift({
+        id: Date.now(),
+        gameId: gameId || null,
+        gameName: game?.name || "General Gaming",
+        date: document.getElementById("diaryDate").value,
+        hours: Number(document.getElementById("diaryHours").value) || 0,
+        text,
+        createdAt: new Date().toISOString()
+    });
+
+    saveDatabase();
+    closeModal();
+    toast("Diary entry saved!");
+}
+
+function renderDiary() {
+    const list = document.getElementById("diaryList");
+
+    if (!database.diary.length) {
+        list.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">▤</div>
+                <h3>Your story starts here</h3>
+                Add your first gaming diary entry.
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = database.diary.map(entry => `
+        <div class="diary-entry">
+            <small>${escapeHTML(formatDate(entry.date))}</small>
+            <h3>${escapeHTML(entry.gameName)}</h3>
+            ${entry.hours ? `<small>${entry.hours} hours played</small>` : ""}
+            <p>${escapeHTML(entry.text).replace(/\n/g, "<br>")}</p>
+            <button class="btn btn-danger"
+                onclick="deleteDiary(${Number(entry.id)})">
+                Delete Entry
+            </button>
+        </div>
+    `).join("");
+}
+
+function deleteDiary(id) {
+    if (!confirm("Delete this diary entry?")) return;
+
+    database.diary = database.diary.filter(e => e.id !== id);
+    saveDatabase();
+    toast("Entry deleted.");
+}
+
+document.getElementById("addDiaryBtn").onclick = addDiaryEntry;
+
+
+// ==========================================
+// STATISTICS
+// ==========================================
+
+function renderStats() {
+    const games = database.games;
+
+    const count = status =>
+        games.filter(g => g.status === status).length;
+
+    const rated = games.filter(g => Number(g.rating) > 0);
+
+    const average = rated.length
+        ? (rated.reduce((sum, g) => sum + Number(g.rating), 0) / rated.length).toFixed(1)
+        : "—";
+
+    document.getElementById("totalStat").textContent = games.length;
+    document.getElementById("completedStat").textContent = count("Completed");
+    document.getElementById("playingStat").textContent = count("Playing");
+    document.getElementById("ratingStat").textContent = average;
+
+    document.getElementById("sTotal").textContent = games.length;
+    document.getElementById("sCompleted").textContent = count("Completed");
+    document.getElementById("sReviewed").textContent =
+        games.filter(g => g.review?.trim()).length;
+    document.getElementById("sDiary").textContent = database.diary.length;
+
+    const statuses = ["Playing", "Completed", "Backlog", "Dropped"];
+
+    document.getElementById("breakdown").innerHTML =
+        statuses.map(status => {
+            const total = count(status);
+            const percent = games.length
+                ? (total / games.length) * 100
+                : 0;
+
+            return `
+                <div style="margin-bottom:18px">
+                    <div style="display:flex;justify-content:space-between;
+                        font-size:12px;margin-bottom:7px">
+                        <span>${status}</span>
+                        <span>${total}</span>
+                    </div>
+
+                    <div style="height:7px;background:#292d26;border-radius:10px">
+                        <div style="height:100%;width:${percent}%;
+                            background:var(--lime);border-radius:10px">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+    renderGrid(
+        "topRatedGrid",
+        [...rated].sort((a,b) => b.rating - a.rating).slice(0,10),
+        "No rated games yet"
+    );
+}
+
+
+// ==========================================
+// HOME
+// ==========================================
+
+function renderHome() {
+    renderGrid(
+        "recentGrid",
+        database.games.slice(0, 6),
+        "Your collection is empty"
+    );
+
+    renderGrid(
+        "playingGrid",
+        database.games.filter(g => g.status === "Playing").slice(0,6),
+        "Nothing currently playing"
+    );
+}
+
+
+// ==========================================
+// STATUS PAGES
+// ==========================================
+
+function renderStatus(status) {
+    document.getElementById("statusHeading").textContent =
+        status + " Games";
+
+    renderGrid(
+        "statusGrid",
+        database.games.filter(g => g.status === status),
+        `No ${status.toLowerCase()} games yet`
+    );
+}
+
+
+// ==========================================
+// RENDER
+// ==========================================
+
+function renderPage(page) {
+    switch (page) {
+        case "home":
+            renderHome();
+            renderStats();
+            break;
+
+        case "library":
+            renderLibrary();
+            break;
+
+        case "playing":
+            renderStatus("Playing");
+            break;
+
+        case "completed":
+            renderStatus("Completed");
+            break;
+
+        case "backlog":
+            renderStatus("Backlog");
+            break;
+
+        case "dropped":
+            renderStatus("Dropped");
+            break;
+
+        case "diary":
+            renderDiary();
+            break;
+
+        case "stats":
+            renderStats();
+            break;
+    }
+}
+
+function renderAll() {
+    renderStats();
+    renderPage(currentPage);
+}
+
+
+// ==========================================
+// BACKUP & RESTORE
+// ==========================================
+
+function exportBackup() {
+    const data = {
+        application: "NOBoxd",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        ...database
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `NOBoxd_Backup_${new Date().toISOString().slice(0,10)}.json`;
+
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    toast("Backup exported!");
+}
+
+function importBackup(file) {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        try {
+            const data = JSON.parse(reader.result);
+
+            if (!Array.isArray(data.games) || !Array.isArray(data.diary)) {
+                throw new Error("Invalid backup structure.");
+            }
+
+            if (!confirm("Replace your current NOBoxd data with this backup?")) {
+                return;
+            }
+
+            database = {
+                games: data.games,
+                diary: data.diary
+            };
+
+            saveDatabase();
+            toast("Backup restored!");
+        } catch (error) {
+            toast("Invalid backup file.");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+document.getElementById("exportBtn").onclick = exportBackup;
+
+document.getElementById("importBtn").onclick = () => {
+    document.getElementById("importFile").click();
+};
+
+document.getElementById("importFile").onchange = e => {
+    const file = e.target.files[0];
+    if (file) importBackup(file);
+    e.target.value = "";
+};
+
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+
+renderAll();
+navigate("home");
+
+</script>
+
+</body>
+</html>
