@@ -859,24 +859,10 @@ function loadDatabase() {
 }
 
 function saveDatabase() {
-    // Keep a local safety copy, then persist to the server database.
+    // The free deployment has no durable shared database. Keep the library
+    // and diary in this browser so Render restarts cannot erase user data.
     localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
     renderAll();
-
-    if (databaseReady) {
-        const snapshot = JSON.stringify(database);
-        databaseSaveQueue = databaseSaveQueue
-            .catch(() => {})
-            .then(() => apiRequest("/api/database", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: snapshot
-            }))
-            .catch(error => {
-                console.error("NOBoxd database sync failed:", error);
-                toast("Could not sync database. Local backup is safe.");
-            });
-    }
 }
 
 function toast(message) {
@@ -1821,49 +1807,9 @@ document.getElementById("importFile").onchange = e => {
 // INITIALIZE
 // ==========================================
 
-async function initializeNOBoxd() {
-    if (!API_AVAILABLE) {
-        database = loadDatabase();
-        databaseReady = false;
-        renderAll();
-        navigate("home");
-        return;
-    }
-
-    try {
-        const remote = await apiRequest("/api/database");
-        const remoteDB = remote.database || { games: [], diary: [] };
-
-        if (remote.exists) {
-            // Server database is authoritative once it has been created.
-            database = {
-                games: Array.isArray(remoteDB.games) ? remoteDB.games : [],
-                diary: Array.isArray(remoteDB.diary) ? remoteDB.diary : []
-            };
-        } else {
-            // One-time migration: preserve an existing browser collection.
-            const localDB = loadDatabase();
-            database = localDB;
-            if (localDB.games.length || localDB.diary.length) {
-                await apiRequest("/api/database", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(localDB)
-                });
-                toast("Your existing collection was migrated to the server.");
-            }
-        }
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
-        databaseReady = true;
-    } catch (error) {
-        console.error("Could not initialize server database:", error);
-        // Keep the app usable with the browser copy if the server DB is unavailable.
-        database = loadDatabase();
-        databaseReady = false;
-        toast("Server database unavailable. Using this browser's saved data.");
-    }
-
+function initializeNOBoxd() {
+    database = loadDatabase();
+    databaseReady = false;
     renderAll();
     navigate("home");
 }
