@@ -280,7 +280,7 @@ app.get("/api/games/:id", async (req, res) => {
         const requestedId = String(req.params.id);
         if (requestedId.startsWith("steam_")) {
             const steamId = requestedId.slice(6);
-            if (!/^\\d+$/.test(steamId)) {
+            if (!/^\d+$/.test(steamId)) {
                 return res.status(400).json({ error: "Invalid Steam app ID." });
             }
             const steamGame = await steamDetails(steamId);
