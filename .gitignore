@@ -1,2 +1,4 @@
 node_modules/
 .env
+# NOBoxd personal database
+/data/
