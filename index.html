@@ -821,8 +821,9 @@ input::placeholder, textarea::placeholder {
 <div id="toast" class="hidden toast"></div>
 
 
+<script src="./noboxd.config.js"></script>
 <script>
-/* NOBoxd must use the same origin as its backend and saved collection. */
+/* Open local files through the backend so API requests have an origin. */
 if (window.location.protocol === "file:") {
     window.location.replace("http://localhost:3000/");
 }
@@ -1001,9 +1002,18 @@ document.getElementById("searchBtn").onclick = () => navigate("discover");
 // IGDB API
 // ==========================================
 
+const API_BASE_URL = String(window.NOBOXD_API_URL || "")
+    .trim()
+    .replace(/\/+$/, "");
+
+function apiURL(url) {
+    return API_BASE_URL && url.startsWith("/")
+        ? `${API_BASE_URL}${url}`
+        : url;
+}
+
 async function apiRequest(url, options = {}) {
-    // Use the same origin as the page. A file:// page is redirected above.
-    const response = await fetch(url, {
+    const response = await fetch(apiURL(url), {
         ...options,
         headers: { "Accept": "application/json", ...(options.headers || {}) },
         cache: "no-store"
@@ -1018,7 +1028,7 @@ async function apiRequest(url, options = {}) {
         const body = await response.text();
         throw new Error(
             `The NOBoxd API returned a non-JSON response (HTTP ${response.status}). ` +
-            `Check that the Node server is running at http://localhost:3000. ` +
+            `Check that the Node server is running or configure NOBOXD_API_URL. ` +
             (body ? body.slice(0, 160) : "")
         );
     }

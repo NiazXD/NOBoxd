@@ -7,9 +7,34 @@ const fs = require("fs/promises");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = (process.env.CORS_ORIGIN || [
+    "https://niazxd.github.io",
+    "http://localhost:3000"
+].join(","))
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use((req, res, next) => {
+    const origin = req.get("Origin");
+
+    // Requests without an Origin header include health checks and server-to-server calls.
+    if (!origin) {
+        return next();
+    }
+
+    if (!allowedOrigins.includes(origin)) {
+        return res.status(403).json({ error: "Origin is not allowed by CORS." });
+    }
+
+    res.set("Access-Control-Allow-Origin", origin);
+    res.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    res.vary("Origin");
+
+    return req.method === "OPTIONS" ? res.sendStatus(204) : next();
+});
 
 const IGDB_URL = "https://api.igdb.com/v4";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
@@ -338,6 +363,12 @@ app.get("/api/health", (req, res) => {
             accessToken && Date.now() < tokenExpiresAt
         )
     });
+});
+
+// The browser app is at the repository root for GitHub Pages, while the
+// development server keeps serving it at the same URL.
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // ==========================================
