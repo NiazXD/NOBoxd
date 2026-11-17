@@ -837,6 +837,8 @@ if (window.location.protocol === "file:") {
 const STORAGE_KEY = "noboxd_database_v1";
 
 let database = loadDatabase();
+let databaseReady = false;
+let databaseSaveQueue = Promise.resolve();
 let currentPage = "home";
 let libraryFilter = "All";
 let searchTimer = null;
@@ -856,8 +858,24 @@ function loadDatabase() {
 }
 
 function saveDatabase() {
+    // Keep a local safety copy, then persist to the server database.
     localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
     renderAll();
+
+    if (databaseReady) {
+        const snapshot = JSON.stringify(database);
+        databaseSaveQueue = databaseSaveQueue
+            .catch(() => {})
+            .then(() => apiRequest("/api/database", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: snapshot
+            }))
+            .catch(error => {
+                console.error("NOBoxd database sync failed:", error);
+                toast("Could not sync database. Local backup is safe.");
+            });
+    }
 }
 
 function toast(message) {
@@ -983,10 +1001,11 @@ document.getElementById("searchBtn").onclick = () => navigate("discover");
 // IGDB API
 // ==========================================
 
-async function apiRequest(url) {
+async function apiRequest(url, options = {}) {
     // Use the same origin as the page. A file:// page is redirected above.
     const response = await fetch(url, {
-        headers: { "Accept": "application/json" },
+        ...options,
+        headers: { "Accept": "application/json", ...(options.headers || {}) },
         cache: "no-store"
     });
 
@@ -1774,8 +1793,46 @@ document.getElementById("importFile").onchange = e => {
 // INITIALIZE
 // ==========================================
 
-renderAll();
-navigate("home");
+async function initializeNOBoxd() {
+    try {
+        const remote = await apiRequest("/api/database");
+        const remoteDB = remote.database || { games: [], diary: [] };
+
+        if (remote.exists) {
+            // Server database is authoritative once it has been created.
+            database = {
+                games: Array.isArray(remoteDB.games) ? remoteDB.games : [],
+                diary: Array.isArray(remoteDB.diary) ? remoteDB.diary : []
+            };
+        } else {
+            // One-time migration: preserve an existing browser collection.
+            const localDB = loadDatabase();
+            database = localDB;
+            if (localDB.games.length || localDB.diary.length) {
+                await apiRequest("/api/database", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(localDB)
+                });
+                toast("Your existing collection was migrated to the server.");
+            }
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
+        databaseReady = true;
+    } catch (error) {
+        console.error("Could not initialize server database:", error);
+        // Keep the app usable with the browser copy if the server DB is unavailable.
+        database = loadDatabase();
+        databaseReady = false;
+        toast("Server database unavailable. Using this browser's saved data.");
+    }
+
+    renderAll();
+    navigate("home");
+}
+
+initializeNOBoxd();
 
 </script>
 
